@@ -2,18 +2,22 @@
 
 function App() {
   const [counter, setCounter] = useState(0);
-  const incrementCounter = () => setCounter(counter + 1)
+  const incrementCounter = (increment) => setCounter(counter + increment)
   return (
     <div>
-      <Button onClickHandler={incrementCounter}/>
+      <Button onClickHandler={incrementCounter} increment={1}/>
+      <Button onClickHandler={incrementCounter} increment={5}/>
+      <Button onClickHandler={incrementCounter} increment={10}/>
+      <Button onClickHandler={incrementCounter} increment={100}/>
       <Display message={counter}/>
     </div>
   );
 }
 
 function Button(props) {
+  const onClickHandler = () => props.onClickHandler(props.increment)
 	return (
-    <button onClick={props.onClickHandler}>+1</button>
+    <button onClick={onClickHandler}>+{props.increment}</button>
   );
 }
 
