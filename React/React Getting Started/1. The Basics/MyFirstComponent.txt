@@ -1,8 +1,8 @@
 // Run in https://jscomplete.com/playground
 
 function Button() {
-  const [counter, setCounter] = useState(0);
-	return <button onClick={() => setCounter(counter + 1)}>{counter}</button>;
+  const [counter, setCounter] = useState(5);
+	return <button onClick={() => setCounter(counter + counter)}>{counter}</button>;
 }
 
 ReactDOM.render(
