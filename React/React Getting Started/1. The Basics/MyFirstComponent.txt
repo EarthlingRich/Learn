@@ -1,11 +1,29 @@
 // Run in https://jscomplete.com/playground
 
-function Button() {
-  const [counter, setCounter] = useState(5);
-	return <button onClick={() => setCounter(counter + counter)}>{counter}</button>;
+function App() {
+  const [counter, setCounter] = useState(0);
+  const incrementCounter = () => setCounter(counter + 1)
+  return (
+    <div>
+      <Button onClickHandler={incrementCounter}/>
+      <Display message={counter}/>
+    </div>
+  );
+}
+
+function Button(props) {
+	return (
+    <button onClick={props.onClickHandler}>+1</button>
+  );
+}
+
+function Display(props) {
+  return (
+    <div>{props.message}</div>
+  );
 }
 
 ReactDOM.render(
-  <Button />, 
+  <App />, 
   document.getElementById('mountNode'),
 );
