@@ -1,0 +1,31 @@
+// Run in https://jscomplete.com/playground/rgs2.1
+
+class App extends React.Component {
+  render() {
+    return (
+      <div>
+        <div className="header">{this.props.title}</div>
+        <Card />
+      </div>
+    )
+  }
+}
+
+class Card extends React.Component {
+  render() {
+    return(
+      <div className="github-profile">
+        <img src="https://placehold.it/75"></img>
+        <div className="info">
+          <div className="name">Name</div>
+          <div className="company">Company</div>
+        </div>
+      </div>
+    )
+  }
+}
+
+ReactDOM.render(
+	<App title="The GitHub Cards App" />,
+  mountNode,
+)
