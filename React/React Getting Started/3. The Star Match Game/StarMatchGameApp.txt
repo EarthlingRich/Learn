@@ -1,5 +1,19 @@
 // Run in https://jscomplete.com/playground/rgs3.1
 
+const StarDisplay = (props) => (
+  <>
+    {utils.range(1, props.count).map(number =>
+      <div key={number} className="star" />
+    )}
+  </>
+)
+
+const NumberButton = (props) => (
+  <button className="number" onClick={() => console.log(props.number)}>
+    {props.number}
+  </button>
+)
+
 const StarMatch = () => {
   const [starCount, setStarCount] = useState(utils.random(1, 9))
   return (
@@ -9,13 +23,11 @@ const StarMatch = () => {
       </div>
       <div className="body">
         <div className="left">
-          {utils.range(1, starCount).map(starNumber =>
-            <div key={starNumber} className="star" />
-          )}
+          <StarDisplay count={starCount} />
         </div>
         <div className="right">
-          {utils.range(1, 9).map(buttonNumber =>
-            <button key={buttonNumber} className="number">{buttonNumber}</button>
+          {utils.range(1, 9).map(number =>
+            <NumberButton key={number} number={number}/>
           )}
         </div>
       </div>
