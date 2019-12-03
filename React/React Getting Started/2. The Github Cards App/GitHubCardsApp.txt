@@ -7,10 +7,15 @@ const testProfiles = [
 ];
 
 class Form extends React.Component {
+  state = { userName: "" }
+  handleSubmit = (e) => {
+    e.preventDefault()
+    console.log(this.state.userName)
+  }
   render() {
     return (
-      <form action="">
-        <input type="text" placeholder="GitHub username"></input>
+      <form onSubmit={this.handleSubmit}>
+        <input value={this.state.userName} onChange={e => this.setState({ userName: e.target.value})} type="text" placeholder="GitHub username" required></input>
         <button>Add card</button>
       </form>
     )
