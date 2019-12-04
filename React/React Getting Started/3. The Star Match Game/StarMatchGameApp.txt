@@ -9,13 +9,32 @@ const StarDisplay = (props) => (
 )
 
 const NumberButton = (props) => (
-  <button className="number" onClick={() => console.log(props.number)}>
+  <button 
+    className="number"
+    style={{backgroundColor: colors[props.status]}}
+    onClick={() => console.log(props.number)}
+  >
     {props.number}
   </button>
 )
 
 const StarMatch = () => {
-  const [starCount, setStarCount] = useState(utils.random(1, 9))
+  const ammountOfStars = 9;
+  
+  const [starCount, setStarCount] = useState(utils.random(1, ammountOfStars))
+  const [availableNumbers, setAvailableNumbers] = useState(utils.range(1, ammountOfStars))
+  const [selectedNumbers, setSelectedNumbers] = useState([])
+  
+  const isSelectionInvalid = utils.sum(selectedNumbers) > starCount
+  
+  const numberStatus = (number) => {
+    if (!availableNumbers.includes(number))
+      return 'used'
+    if (selectedNumbers.includes(number))
+      return isSelectionInvalid ? 'invalid' : 'selected'
+    return 'available'
+  }
+  
   return (
     <div className="game">
       <div className="help">
@@ -26,8 +45,12 @@ const StarMatch = () => {
           <StarDisplay count={starCount} />
         </div>
         <div className="right">
-          {utils.range(1, 9).map(number =>
-            <NumberButton key={number} number={number}/>
+          {utils.range(1, ammountOfStars).map(number =>
+            <NumberButton 
+              key={number}
+              number={number}
+              status={numberStatus(number)}
+            />
           )}
         </div>
       </div>
@@ -40,8 +63,8 @@ const StarMatch = () => {
 const colors = {
   available: 'lightgray',
   used: 'lightgreen',
-  wrong: 'lightcoral',
-  candidate: 'deepskyblue',
+  invalid: 'lightcoral',
+  selected: 'deepskyblue',
 };
 
 // Math science
