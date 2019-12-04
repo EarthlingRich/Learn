@@ -12,17 +12,17 @@ const NumberButton = (props) => (
   <button 
     className="number"
     style={{backgroundColor: colors[props.status]}}
-    onClick={() => console.log(props.number)}
+    onClick={() => props.onClick(props.number, props.status)}
   >
     {props.number}
   </button>
 )
 
 const StarMatch = () => {
-  const ammountOfStars = 9;
+  const maximumAmmountOfStars = 9;
   
-  const [starCount, setStarCount] = useState(utils.random(1, ammountOfStars))
-  const [availableNumbers, setAvailableNumbers] = useState(utils.range(1, ammountOfStars))
+  const [starCount, setStarCount] = useState(utils.random(1, maximumAmmountOfStars))
+  const [availableNumbers, setAvailableNumbers] = useState(utils.range(1, maximumAmmountOfStars))
   const [selectedNumbers, setSelectedNumbers] = useState([])
   
   const isSelectionInvalid = utils.sum(selectedNumbers) > starCount
@@ -35,6 +35,22 @@ const StarMatch = () => {
     return 'available'
   }
   
+  const onNumberClick = (number, currentStatus) => {
+    if (currentStatus == 'used')
+      return
+    
+    const newSelectedNumbers = currentStatus === 'available' ? selectedNumbers.concat(number) : selectedNumbers.filter(n => n !== number)
+    
+    if (utils.sum(newSelectedNumbers) !== starCount)
+      setSelectedNumbers(newSelectedNumbers)
+    else {
+      const newAvailableNumber = availableNumbers.filter(n => !newSelectedNumbers.includes(n))
+      setAvailableNumbers(newAvailableNumber)
+      setSelectedNumbers([])
+      setStarCount(utils.randomSumIn(newAvailableNumber, maximumAmmountOfStars))
+    }
+  }
+  
   return (
     <div className="game">
       <div className="help">
@@ -45,11 +61,12 @@ const StarMatch = () => {
           <StarDisplay count={starCount} />
         </div>
         <div className="right">
-          {utils.range(1, ammountOfStars).map(number =>
+          {utils.range(1, maximumAmmountOfStars).map(number =>
             <NumberButton 
               key={number}
               number={number}
               status={numberStatus(number)}
+              onClick={onNumberClick}
             />
           )}
         </div>
