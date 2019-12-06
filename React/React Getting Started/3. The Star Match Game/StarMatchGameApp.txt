@@ -10,6 +10,11 @@ const StarDisplay = (props) => (
 
 const PlayAgain = (props) => (
   <div className="game-done">
+    <div 
+      className="message"
+      style={{ color: props.gameStatus === 'won' ? 'green' : 'red'}}>
+      {props.gameStatus ==='won' ? 'You won! :)' : 'You lost. :(' }
+      </div>
     <button onClick={props.onClick}>Play again</button>
   </div>
 )
@@ -17,8 +22,8 @@ const PlayAgain = (props) => (
 const NumberButton = (props) => (
   <button 
     className="number"
-    style={{backgroundColor: colors[props.status]}}
-    onClick={() => props.onClick(props.number, props.status)}
+    style={{backgroundColor: colors[props.numberStatus]}}
+    onClick={() => props.onClick(props.number, props.numberStatus)}
   >
     {props.number}
   </button>
@@ -26,13 +31,17 @@ const NumberButton = (props) => (
 
 const StarMatch = () => {
   const maximumAmmountOfStars = 9;
+  const startSeconds = 10;
   
   const [starCount, setStarCount] = useState(utils.random(1, maximumAmmountOfStars))
   const [availableNumbers, setAvailableNumbers] = useState(utils.range(1, maximumAmmountOfStars))
   const [selectedNumbers, setSelectedNumbers] = useState([])
+  const [remainingSeconds, setRemainingSeconds] = useState(startSeconds)
+  const [timerId, setTimerId] = useState(null)
   
   const isSelectionInvalid = utils.sum(selectedNumbers) > starCount
-  const isGameFinished = availableNumbers.length === 0
+  const gameStatus = availableNumbers.length === 0 ? 'won'
+    : remainingSeconds === 0 ? 'lost' : 'active'
   
   const numberStatus = (number) => {
     if (!availableNumbers.includes(number))
@@ -41,18 +50,19 @@ const StarMatch = () => {
       return isSelectionInvalid ? 'invalid' : 'selected'
     return 'available'
   }
-  
+
   const resetGame = () => {
     setStarCount(utils.random(1, maximumAmmountOfStars))
     setAvailableNumbers(utils.range(1, maximumAmmountOfStars))
     setSelectedNumbers([])
+    setRemainingSeconds(startSeconds)
   }
   
-  const onNumberClick = (number, currentStatus) => {
-    if (currentStatus == 'used')
+  const onNumberClick = (number, numberStatus) => {
+    if (gameStatus !== 'active' || numberStatus == 'used')
       return
     
-    const newSelectedNumbers = currentStatus === 'available' ? selectedNumbers.concat(number) : selectedNumbers.filter(n => n !== number)
+    const newSelectedNumbers = numberStatus === 'available' ? selectedNumbers.concat(number) : selectedNumbers.filter(n => n !== number)
     
     if (utils.sum(newSelectedNumbers) !== starCount)
       setSelectedNumbers(newSelectedNumbers)
@@ -64,6 +74,19 @@ const StarMatch = () => {
     }
   }
   
+  useEffect(() => {
+    debugger;
+    if (remainingSeconds !== 0 && timerId === null && gameStatus === 'active') {
+      setTimerId(setInterval(() => {
+          setRemainingSeconds(remainingSeconds => remainingSeconds - 1)
+      }, 1000))
+    }
+    if ((remainingSeconds === 0 && timerId !== null) || gameStatus !== 'active') {
+      clearInterval(timerId)
+      setTimerId(null)
+    }
+  }, [remainingSeconds, timerId])
+  
   return (
     <div className="game">
       <div className="help">
@@ -71,8 +94,8 @@ const StarMatch = () => {
       </div>
       <div className="body">
         <div className="left">
-          {isGameFinished ? (
-            <PlayAgain onClick={resetGame} />
+          {gameStatus !== 'active' ? (
+            <PlayAgain onClick={resetGame} gameStatus={gameStatus} />
           ) : (
             <StarDisplay count={starCount} />
           )}
@@ -83,13 +106,13 @@ const StarMatch = () => {
             <NumberButton 
               key={number}
               number={number}
-              status={numberStatus(number)}
+              numberStatus={numberStatus(number)}
               onClick={onNumberClick}
             />
           )}
         </div>
       </div>
-      <div className="timer">Time Remaining: 10</div>
+      <div className="timer">Time Remaining: {remainingSeconds}</div>
     </div>
   );
 };
