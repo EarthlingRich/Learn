@@ -1,4 +1,6 @@
 // Run in https://jscomplete.com/playground/rgs3.1
+const MAX_STARS = 9;
+const START_SECONDS = 10;
 
 const StarDisplay = (props) => (
   <>
@@ -29,46 +31,15 @@ const NumberButton = (props) => (
   </button>
 )
 
-const Game = (props) => {
-  const maximumAmmountOfStars = 9;
-  const startSeconds = 10;
-  
-  const [starCount, setStarCount] = useState(utils.random(1, maximumAmmountOfStars))
-  const [availableNumbers, setAvailableNumbers] = useState(utils.range(1, maximumAmmountOfStars))
+const useGameState = () => {
+  const [starCount, setStarCount] = useState(utils.random(1, MAX_STARS))
+  const [availableNumbers, setAvailableNumbers] = useState(utils.range(1, MAX_STARS))
   const [selectedNumbers, setSelectedNumbers] = useState([])
-  const [remainingSeconds, setRemainingSeconds] = useState(startSeconds)
+  const [remainingSeconds, setRemainingSeconds] = useState(START_SECONDS)
   const [timerId, setTimerId] = useState(null)
   
-  const isSelectionInvalid = utils.sum(selectedNumbers) > starCount
-  const gameStatus = availableNumbers.length === 0 ? 'won'
-    : remainingSeconds === 0 ? 'lost' : 'active'
-  
-  const onNumberClick = (number, numberStatus) => {
-    if (gameStatus !== 'active' || numberStatus == 'used')
-      return
-    
-    const newSelectedNumbers = numberStatus === 'available' ? selectedNumbers.concat(number) : selectedNumbers.filter(n => n !== number)
-    
-    if (utils.sum(newSelectedNumbers) !== starCount)
-      setSelectedNumbers(newSelectedNumbers)
-    else {
-      const newAvailableNumber = availableNumbers.filter(n => !newSelectedNumbers.includes(n))
-      setAvailableNumbers(newAvailableNumber)
-      setSelectedNumbers([])
-      setStarCount(utils.randomSumIn(newAvailableNumber, maximumAmmountOfStars))
-    }
-  }
-  
-  const numberStatus = (number) => {
-    if (!availableNumbers.includes(number))
-      return 'used'
-    if (selectedNumbers.includes(number))
-      return isSelectionInvalid ? 'invalid' : 'selected'
-    return 'available'
-  }
-  
   useEffect(() => {
-    if (remainingSeconds !== 0 && timerId === null && gameStatus === 'active') {
+    if (remainingSeconds !== 0 && timerId === null) {
       setTimerId(setInterval(() => {
           setRemainingSeconds(remainingSeconds => remainingSeconds - 1)
       }, 1000))
@@ -78,6 +49,58 @@ const Game = (props) => {
       setTimerId(null)
     }
   }, [remainingSeconds])
+  
+  const gameStatus = availableNumbers.length === 0 ? 'won'
+    : remainingSeconds === 0 ? 'lost' : 'active'
+  
+  const setGameState = (number, numberStatus) => {
+    const newSelectedNumbers = numberStatus === 'available' ? selectedNumbers.concat(number) : selectedNumbers.filter(n => n !== number)
+    
+    if (utils.sum(newSelectedNumbers) !== starCount)
+      setSelectedNumbers(newSelectedNumbers)
+    else {
+      const newAvailableNumber = availableNumbers.filter(n => !newSelectedNumbers.includes(n))
+      setAvailableNumbers(newAvailableNumber)
+      setSelectedNumbers([])
+      setStarCount(utils.randomSumIn(newAvailableNumber, MAX_STARS))
+    }
+  }
+  
+  return {
+    starCount,
+    availableNumbers,
+    selectedNumbers,
+    remainingSeconds,
+    gameStatus,
+    setGameState
+  }
+}
+
+const Game = (props) => {
+ const {
+   starCount,
+   availableNumbers,
+   selectedNumbers,
+   remainingSeconds,
+   setGameState,
+   gameStatus
+ } = useGameState();
+  
+  const numberStatus = (number) => {
+    const isSelectionInvalid = utils.sum(selectedNumbers) > starCount
+    if (!availableNumbers.includes(number))
+      return 'used'
+    if (selectedNumbers.includes(number))
+      return isSelectionInvalid ? 'invalid' : 'selected'
+    return 'available'
+  }
+  
+  const onNumberClick = (number, numberStatus) => {
+    if (gameStatus !== 'active' || numberStatus == 'used')
+      return
+    
+    setGameState(number, numberStatus)
+  }
   
   return (
     <div className="game">
@@ -94,7 +117,7 @@ const Game = (props) => {
           
         </div>
         <div className="right">
-          {utils.range(1, maximumAmmountOfStars).map(number =>
+          {utils.range(1, MAX_STARS).map(number =>
             <NumberButton 
               key={number}
               number={number}
