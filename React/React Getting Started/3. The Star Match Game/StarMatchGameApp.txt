@@ -37,19 +37,21 @@ const useGameState = () => {
   const [selectedNumbers, setSelectedNumbers] = useState([])
   const [remainingSeconds, setRemainingSeconds] = useState(START_SECONDS)
   const [timerId, setTimerId] = useState(null)
-  
+
   useEffect(() => {
-    if (remainingSeconds !== 0 && timerId === null) {
+    if(timerId === null) {
       setTimerId(setInterval(() => {
-          setRemainingSeconds(remainingSeconds => remainingSeconds - 1)
+        setRemainingSeconds(remainingSeconds => remainingSeconds - 1)
+        if (remainingSeconds === 0)
+          clearInterval(timerId)
       }, 1000))
     }
-    if ((remainingSeconds === 0 && timerId !== null) || gameStatus !== 'active') {
+    if (remainingSeconds === 0) {
       clearInterval(timerId)
       setTimerId(null)
     }
   }, [remainingSeconds])
-  
+
   const gameStatus = availableNumbers.length === 0 ? 'won'
     : remainingSeconds === 0 ? 'lost' : 'active'
   
