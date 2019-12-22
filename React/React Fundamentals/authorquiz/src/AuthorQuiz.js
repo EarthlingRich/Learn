@@ -2,12 +2,10 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; 
 import './App.css';
 
-function App() {
+function AuthorQuiz() {
   return (
-    <div>
-      Author Quiz
-    </div>
+    <div>Author Quiz</div>
   );
 }
 
-export default App;
+export default AuthorQuiz;
